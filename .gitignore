@@ -147,3 +147,11 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# ==========================================
+# WHYDIE BOT CUSTOM (JANGAN DIHAPUS)
+# ==========================================
+# Abaikan folder session WhatsApp biar aman
+src/database/session*
+# Abaikan file database lokal
+src/database/*.json
