@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Whydie Bot</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: #1e293b; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); width: 100%; max-width: 400px; text-align: center; }
+        h1 { margin-top: 0; color: #38bdf8; }
+        p { color: #94a3b8; font-size: 14px; }
+        input { width: 100%; padding: 12px; margin: 15px 0; background: #0f172a; border: 1px solid #334155; color: #fff; border-radius: 8px; box-sizing: border-box; outline: none; font-size: 16px; }
+        input:focus { border-color: #38bdf8; }
+        button { width: 100%; padding: 12px; background: #38bdf8; color: #0f172a; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; }
+        button:hover { background: #0284c7; color: #fff; }
+        .code-box { display: none; margin-top: 20px; padding: 20px; background: #064e3b; border: 1px dashed #10b981; border-radius: 8px; }
+        .code-box h2 { margin: 0; font-size: 36px; letter-spacing: 4px; color: #34d399; }
+        .code-box p { color: #a7f3d0; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <span style="font-size: 12px; color: #38bdf8;" id="welcomeText">Memuat...</span>
+            <a href="/api/logout" style="font-size: 12px; color: #ef4444; text-decoration: none;">Logout</a>
+        </div>
+        <h1>Whydie Bot</h1>
+        <p>Masukkan nomor WhatsApp untuk menghubungkan bot.</p>
+        <input type="number" id="phone" placeholder="Contoh: 628123456789" required>
+        <button id="pairBtn" onclick="requestPair()">Dapatkan Kode Pair</button>
+        <div class="code-box" id="resultBox">
+            <p>Masukkan kode ini di WhatsApp:<br>(Perangkat Tertaut > Tautkan dengan nomor telepon)</p>
+            <h2 id="pairCode">----</h2>
+        </div>
+    </div>
+    <script>
+        fetch('/api/me').then(res => res.json()).then(data => { if (data.loggedIn) document.getElementById('welcomeText').innerText = `Halo, ${data.user.username}`; else window.location.href = '/'; });
+        async function requestPair() {
+            const phone = document.getElementById('phone').value, btn = document.getElementById('pairBtn');
+            if(!phone) return alert('Masukkan nomor WhatsApp!');
+            btn.innerText = 'Meminta kode...'; btn.disabled = true;
+            try {
+                const response = await fetch('/api/pair', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phoneNumber: phone }) });
+                const data = await response.json();
+                if(data.success) { document.getElementById('resultBox').style.display = 'block'; document.getElementById('pairCode').innerText = data.code; }
+                else alert(data.message || data.error);
+            } catch (err) { alert('Terjadi kesalahan pada server'); }
+            finally { btn.innerText = 'Dapatkan Kode Pair'; btn.disabled = false; }
+        }
+    </script>
+</body>
+</html>
