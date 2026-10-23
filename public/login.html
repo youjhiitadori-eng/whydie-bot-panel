@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masuk - Whydie Bot</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0f172a; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; overflow: hidden; }
+        #bg-video { position: fixed; right: 0; bottom: 0; min-width: 100%; min-height: 100%; z-index: -1; object-fit: cover; opacity: 0.4; }
+        .login-box { background: rgba(255, 255, 255, 0.95); padding: 40px 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 360px; text-align: center; z-index: 1; position: relative; backdrop-filter: blur(10px); }
+        .logo { font-size: 28px; font-weight: 800; color: #1a1a1a; margin-bottom: 5px; }
+        .logo span { color: #ff5722; }
+        .subtitle { color: #666; font-size: 14px; margin-bottom: 25px; }
+        .btn-google { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 12px; border: 1px solid #ddd; background: #fff; border-radius: 10px; font-weight: 600; cursor: pointer; margin-bottom: 20px; color: #333; }
+        .divider { display: flex; align-items: center; text-align: center; color: #aaa; font-size: 12px; margin-bottom: 20px; }
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #eee; }
+        .divider::before { margin-right: 10px; } .divider::after { margin-left: 10px; }
+        .input-group { background: #f4f5f7; border-radius: 10px; padding: 10px 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; text-align: left; }
+        .input-group label { display: block; font-size: 11px; color: #888; margin-bottom: 2px; }
+        .input-group input { border: none; background: transparent; width: 100%; outline: none; font-size: 14px; color: #333; }
+        .options { display: flex; justify-content: space-between; align-items: center; font-size: 13px; margin-bottom: 20px; color: #555; }
+        .options a { color: #ff5722; text-decoration: none; font-weight: 600; }
+        .btn-submit { width: 100%; padding: 14px; background: #ff5722; color: #fff; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; margin-bottom: 20px; }
+        .btn-submit:hover { background: #e64a19; }
+        .footer-text { font-size: 13px; color: #666; }
+        .footer-text a { color: #ff5722; text-decoration: none; font-weight: bold; cursor: pointer; }
+        .error-msg { color: #e53935; font-size: 13px; margin-bottom: 15px; display: none; }
+    </style>
+</head>
+<body>
+    <video autoplay loop muted playsinline id="bg-video"><source src="bg.mp4" type="video/mp4"></video>
+    <div class="login-box">
+        <div class="logo">Whydie<span>Bot</span></div>
+        <div class="subtitle" id="formTitle">Masuk ke akunmu untuk melanjutkan</div>
+        <div class="error-msg" id="errorMsg"></div>
+        <div id="loginForm">
+            <button class="btn-google"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> Lanjutkan dengan Google</button>
+            <div class="divider">ATAU MASUK DENGAN</div>
+            <div class="input-group"><div style="width:100%"><label>Email atau Username</label><input type="text" id="loginUser" placeholder="Ketik di sini"></div></div>
+            <div class="input-group"><div style="width:100%"><label>Password</label><input type="password" id="loginPass" placeholder="Ketik di sini"></div></div>
+            <div class="options"><label><input type="checkbox"> Ingat saya</label><a href="#">Lupa password?</a></div>
+            <button class="btn-submit" onclick="doLogin()">Masuk</button>
+            <div class="footer-text">Belum punya akun? <a onclick="toggleForm()">Daftar</a></div>
+        </div>
+        <div id="registerForm" style="display: none;">
+            <div class="input-group"><div style="width:100%"><label>Username Baru</label><input type="text" id="regUser" placeholder="Ketik di sini"></div></div>
+            <div class="input-group"><div style="width:100%"><label>Password Baru</label><input type="password" id="regPass" placeholder="Ketik di sini"></div></div>
+            <button class="btn-submit" onclick="doRegister()">Daftar</button>
+            <div class="footer-text">Sudah punya akun? <a onclick="toggleForm()">Masuk</a></div>
+        </div>
+    </div>
+    <script>
+        function toggleForm() { const l = document.getElementById('loginForm'), r = document.getElementById('registerForm'), t = document.getElementById('formTitle'), e = document.getElementById('errorMsg'); e.style.display = 'none'; if (l.style.display === 'none') { l.style.display = 'block'; r.style.display = 'none'; t.innerText = 'Masuk ke akunmu untuk melanjutkan'; } else { l.style.display = 'none'; r.style.display = 'block'; t.innerText = 'Buat akun baru kamu'; } }
+        function showError(m) { const e = document.getElementById('errorMsg'); e.innerText = m; e.style.display = 'block'; }
+        async function doLogin() { const u = document.getElementById('loginUser').value, p = document.getElementById('loginPass').value; const r = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: u, password: p }) }); const d = await r.json(); if (d.success) window.location.href = '/dashboard.html'; else showError(d.error); }
+        async function doRegister() { const u = document.getElementById('regUser').value, p = document.getElementById('regPass').value; const r = await fetch('/api/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: u, password: p }) }); const d = await r.json(); if (d.success) { alert('Daftar berhasil! Silakan login.'); toggleForm(); } else showError(d.error); }
+    </script>
+</body>
+                                         </html>
